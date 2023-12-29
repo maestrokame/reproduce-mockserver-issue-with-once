@@ -8,11 +8,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,7 +32,7 @@ class MockServerTest {
                         .withStatusCode(200)
                         .withBody("OK"));
 
-        ConcurrentLinkedQueue<Long> threadIdsWithMockedResponse = new ConcurrentLinkedQueue<>();
+        AtomicInteger mockedResponseCount = new AtomicInteger();
         CountDownLatch warmUp = new CountDownLatch(THREAD_SIZE);
         Runnable runnable = () -> {
             try {
@@ -49,7 +49,7 @@ class MockServerTest {
                         .send(request, HttpResponse.BodyHandlers.ofString());
 
                 if ("OK".equals(response.body())) {
-                    threadIdsWithMockedResponse.add(Thread.currentThread().getId());
+                    mockedResponseCount.incrementAndGet();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -59,11 +59,9 @@ class MockServerTest {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_SIZE);
         IntStream.range(0, THREAD_SIZE).forEach((i) -> executor.submit(runnable));
 
-        warmUp.await();
-
         executor.awaitTermination(1, TimeUnit.SECONDS);
         mockServer.stop();
 
-        assertEquals(1, threadIdsWithMockedResponse.size());
+        assertEquals(1, mockedResponseCount.get());
     }
 }
