@@ -1,4 +1,4 @@
-Minimal project that reproduces an issue with MockServer where `Times.once()` is matching more than one request.
+Minimal project that reproduces a [MockServer issue](https://github.com/mock-server/mockserver/issues/1826) where `Times.once()` is matching more than one request.
 
 To run: `mvn clean test`
 
