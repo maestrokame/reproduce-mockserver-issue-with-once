@@ -1,5 +1,5 @@
-Minimal project that reproduces an issue with MockServer where Times.once returns response for more than one request.
+Minimal project that reproduces an issue with MockServer where `Times.once()` is matching more than one request.
 
-To reproduce run `mvn clean test`
+To run: `mvn clean test`
 
-Please try a couple of times if the test does not fail.
+Please try a couple of times if the test does not reproduce the issue.
