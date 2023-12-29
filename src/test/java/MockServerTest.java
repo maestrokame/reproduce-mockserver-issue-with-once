@@ -24,7 +24,7 @@ class MockServerTest {
     private static final int THREAD_SIZE = 50;
 
     @Test
-    void mockResponseOfOneRequestOnly() throws Exception {
+    void onlyOneRequestShouldGetTheMockedResponse() throws Exception {
 
         MockServerClient mockServer = ClientAndServer.startClientAndServer(3000);
         mockServer.when(request("/output/.*").withMethod("GET"), Times.once())
