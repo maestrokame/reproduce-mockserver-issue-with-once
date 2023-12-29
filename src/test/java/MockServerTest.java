@@ -33,12 +33,11 @@ class MockServerTest {
                         .withBody("OK"));
 
         ConcurrentLinkedQueue<Long> threadIdsWithMockedResponse = new ConcurrentLinkedQueue<>();
-        CountDownLatch threadsWarmUpLatch = new CountDownLatch(THREAD_SIZE);
-        CountDownLatch startAtOnceLatch = new CountDownLatch(1);
+        CountDownLatch warmUp = new CountDownLatch(THREAD_SIZE);
         Runnable runnable = () -> {
             try {
-                threadsWarmUpLatch.countDown();
-                startAtOnceLatch.await();
+                warmUp.countDown();
+                warmUp.await();
 
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(new URI("http://localhost:3000/output/" + UUID.randomUUID()))
@@ -60,8 +59,7 @@ class MockServerTest {
         ExecutorService executor = Executors.newFixedThreadPool(THREAD_SIZE);
         IntStream.range(0, THREAD_SIZE).forEach((i) -> executor.submit(runnable));
 
-        threadsWarmUpLatch.await();
-        startAtOnceLatch.countDown();
+        warmUp.await();
 
         executor.awaitTermination(1, TimeUnit.SECONDS);
         mockServer.stop();
